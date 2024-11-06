@@ -1,0 +1,8 @@
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+bs4
+pdfkit
+weasyprint
+google-generativeai
+pymupdf
