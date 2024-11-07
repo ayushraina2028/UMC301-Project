@@ -3,8 +3,8 @@ import io
 from PIL import Image
 import os
 import hashlib
-import imageText
 import summarize
+import paddleocr1
 
 
 def compute_image_hash(image):
@@ -23,8 +23,15 @@ def extract_text_and_images_from_pdf(pdf_path, save_dir='extracted_content'):
     # Create directory to save images if it doesn't exist
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
+        
+    # Clear the previously saved images from extracted_content directory
+    for file in os.listdir(save_dir):
+        os.remove(os.path.join(save_dir, file))
 
     pdf_document = fitz.open(pdf_path)
+    if(len(pdf_document) > 4):
+        text = "The PDF document is too large to process."
+        return text, images
     for page_num in range(len(pdf_document)):
         page = pdf_document.load_page(page_num)
         text += page.get_text("text")
@@ -51,16 +58,25 @@ def extract_text_and_images_from_pdf(pdf_path, save_dir='extracted_content'):
     return text, images
 
 # Provide the path to your PDF file
-pdf_path = "../ExtractedEmails/Email4.pdf"
+pdf_path = "../ExtractedEmails/swiggy.pdf"
 pdf_text, pdf_images = extract_text_and_images_from_pdf(pdf_path)
 
 
 imagepath="extracted_content/image1.png"
-image_text = imageText.imageToText(imagepath)
+# image_text = imageText.imageToText(imagepath) # From Gemini
+image_text = paddleocr1.extract_text_from_images("extracted_content") # From PaddleOCR
 
 # add this text to pdf_text
+pdf_text += "\n\n"
+pdf_text += "Text extracted from image:\n\n"
 pdf_text += image_text  
 save_dir='extracted_content'
 text_filename = os.path.join(save_dir, "extracted_text.txt")
+
 with open(text_filename, "w") as text_file:
+    text_file.write("Text extracted from PDF:\n\n")
     text_file.write(pdf_text)
+    
+# summarize the text
+summary = summarize.summarizeText(pdf_text)
+print(summary)

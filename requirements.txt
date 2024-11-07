@@ -6,3 +6,5 @@ pdfkit
 weasyprint
 google-generativeai
 pymupdf
+paddlepaddle
+paddleocr
