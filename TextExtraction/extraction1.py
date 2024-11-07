@@ -58,11 +58,11 @@ def extract_text_and_images_from_pdf(pdf_path, save_dir='extracted_content'):
     return text, images
 
 # Provide the path to your PDF file
-pdf_path = "../ExtractedEmails/swiggy.pdf"
+pdf_path = "../ExtractedEmails/Email1.pdf"
 pdf_text, pdf_images = extract_text_and_images_from_pdf(pdf_path)
 
 
-imagepath="extracted_content/image1.png"
+
 # image_text = imageText.imageToText(imagepath) # From Gemini
 image_text = paddleocr1.extract_text_from_images("extracted_content") # From PaddleOCR
 

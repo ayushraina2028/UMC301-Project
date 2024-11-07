@@ -1,12 +1,15 @@
 import google.generativeai as genai
 from PIL import Image
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 import os
 
+
+load_dotenv()
 os.environ["GRPC_VERBOSITY"] = "ERROR"
 os.environ["GLOG_minloglevel"] = "2"
 
-API_KEY='AIzaSyA3MvPlAkCuOt2tIS0wV7808bJQU86drEs'
+API_KEY = os.getenv('GEMINI_API_KEY')
 MODEL='gemini-1.5-flash'
 PROMPT='Extract all the available text from the image.'
 

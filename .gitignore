@@ -2,6 +2,4 @@
 venv
 credentials.json
 token.pickle
-TextExtraction/imageText.py
-TextExtraction/summarize.py
 TextExtraction/__pycache__/
