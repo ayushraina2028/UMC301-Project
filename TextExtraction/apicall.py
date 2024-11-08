@@ -5,7 +5,7 @@ import os
 import hashlib
 import summarize
 import paddleocr1
-
+import json
 
 def compute_image_hash(image):
     """Compute a hash for an image."""
@@ -57,26 +57,64 @@ def extract_text_and_images_from_pdf(pdf_path, save_dir='extracted_content'):
 
     return text, images
 
-# Provide the path to your PDF file
-pdf_path = "../ExtractedEmails/Email3.pdf"
-pdf_text, pdf_images = extract_text_and_images_from_pdf(pdf_path)
-
-
-
-# image_text = imageText.imageToText(imagepath) # From Gemini
-image_text = paddleocr1.extract_text_from_images("extracted_content") # From PaddleOCR
-
-# add this text to pdf_text
-pdf_text += "\n\n"
-pdf_text += "Text extracted from image:\n\n"
-pdf_text += image_text  
-save_dir='extracted_content'
-text_filename = os.path.join(save_dir, "extracted_text.txt")
-
-with open(text_filename, "w") as text_file:
-    text_file.write("Text extracted from PDF:\n\n")
-    text_file.write(pdf_text)
+def parseSummary(summary):
+    # Parse the summary and extract the required information
+    # For example, extract the email title, category, promo code, expiry date, etc.
     
-# summarize the text
-summary = summarize.summarizeText(pdf_text)
-print(summary)
+    # Delete first and last lines of the summary
+    summary = summary.split('\n')[1:-1]
+    
+    # Extract the email title
+    print(summary)
+    
+    # Join the list of strings into a single string
+    summary_str = ''.join(summary)
+
+    try:
+        # Parse the string as JSON
+        summary_data = json.loads(summary_str)
+        print(summary_data)
+        print(type(summary_data))
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        return None
+    
+    return summary_data
+
+def getContent(pdfPath):
+    pdfText, pdfImages = extract_text_and_images_from_pdf(pdfPath)
+    if pdfText == "The PDF document is too large to process.":
+        
+        # Create a summary JSON object with a message
+        summaryJSON = {
+            "email_title": "N/A",
+            "Category": "N/A",
+            "Summary": "The PDF document is too large to process.",
+            "Promo Code": "N/A",
+            "Expiry Date": "N/A"
+        }
+        
+        return json.dumps(summaryJSON, indent=2)
+    
+    # Extract text from images
+    image_text = paddleocr1.extract_text_from_images("extracted_content") # From PaddleOCR
+
+    pdfText += "\n\n"
+    pdfText += "Text extracted from image:\n\n"
+    pdfText += image_text  
+    save_dir='extracted_content'
+    text_filename = os.path.join(save_dir, "extracted_text.txt")
+
+    with open(text_filename, "w") as text_file:
+        text_file.write("Text extracted from PDF:\n\n")
+        text_file.write(pdfText)
+        
+    # summarize the text
+    summary = summarize.summarizeText(pdfText)
+    summaryJSON = parseSummary(summary)
+    return json.dumps(summaryJSON, indent=2)
+    
+
+
+
+
