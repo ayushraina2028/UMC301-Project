@@ -11,6 +11,7 @@ import apicall
 import json
 import pandas as pd 
 
+
 # Gmail API scopes
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 def get_service():
@@ -78,8 +79,9 @@ def get_labels(service):
     return {label['name']: label['id'] for label in labels}
 
 
+
 def save_metadata_to_csv(data, folder_path="../ExtractedEmails"):
-    """Save email metadata to CSV in a specified folder using Pandas."""
+    """Save email metadata to CSV in a specified folder."""
     
     # Ensure the folder exists
     os.makedirs(folder_path, exist_ok=True)
@@ -87,18 +89,22 @@ def save_metadata_to_csv(data, folder_path="../ExtractedEmails"):
     # Define the path for the CSV file within the specified folder
     csv_file = os.path.join(folder_path, 'emails_metadata.csv')
     
-    # Prepare the data as a DataFrame
-    df = pd.DataFrame([data], columns=['PDF Filename', 'Title', 'Category', 'Summary', 'Promo Code', 'Expiry Date'])
+    # Check if the file already exists to add headers if it's new
+    file_exists = os.path.exists(csv_file)
     
-    # Check if the CSV file exists
-    if os.path.exists(csv_file):
-        # If file exists, append the new data without writing the header
-        df.to_csv(csv_file, mode='a', header=False, index=False)
-    else:
-        # If the file doesn't exist, write the data along with the header
-        df.to_csv(csv_file, mode='w', header=True, index=False)
-
-
+    with open(csv_file, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        
+        # Write headers if file is new
+        # if not file_exists:
+        #     writer.writerow(['pdf_filename', 'email_title', 'category', 'summary_text', 'promo_code', 'expiry_date'])
+        
+        # check if file is empty or not instead of checking if file exists
+        if os.stat(csv_file).st_size == 0:
+            writer.writerow(['pdf_filename', 'email_title', 'category', 'summary_text', 'promo_code', 'expiry_date'])
+        
+        # Write the email metadata (pdf filename, title, sender, category)
+        writer.writerow(data)
         
 def main():
     """Main function to fetch emails from a specific category, convert them to PDF, and save metadata to CSV."""
@@ -109,13 +115,14 @@ def main():
     print("Available labels:", labels)
     
     # Specify the desired category (label name)
+    
     category_name = 'CATEGORY_PROMOTIONS'  # Change this to 'Primary', 'Social', 'Updates', or 'Forums' as needed
     category_id = labels.get(category_name)  # Get the label ID
     if category_id:
         results = service.users().messages().list(userId='me', labelIds=[category_id]).execute()
         messages = results.get('messages', [])
         if messages:
-            for i, message in enumerate(messages[:5]):  # Process the first 3 messages
+            for i, message in enumerate(messages[:15]):  # Process the first 3 messages
                 msg_id = message['id']
                 email_body, sender, subject, snippet = get_email_content(service, msg_id)
                 if email_body:
@@ -134,11 +141,32 @@ def main():
                     summary_text = summaryJSON.get("Summary", "N/A")
                     
                     # check if it is already in the csv
-                    
+                    # If the CSV file exists, read it to check for duplicates
+                    flag = True
+                    csv_file = "../ExtractedEmails/emails_metadata.csv"
+                    if os.path.exists(csv_file):
+                        if os.stat(csv_file).st_size == 0:
+                            flag = False
+                            
+                        if(flag):
+                            # Read the first column (PDF Filename) of the CSV
+                            existing_df = pd.read_csv(csv_file)
+                            existing_titles = existing_df['email_title'].tolist()  # Get the list of titles (subjects)
+
+                            # Check if the email_title is already in the list
+                            if email_title in existing_titles:
+                                print(f"Email with subject '{email_title}' already exists in the CSV. Skipping...")
+                                break  # Skip saving this metadata if it's already present
+                    else:
+                        print("CSV file not found. Proceeding with saving new data.")
+
                         
                     # Save metadata to CSV
                     save_metadata_to_csv([pdf_filename, email_title, category, summary_text, promo_code, expiry_date])
                     # save_metadata_to_csv([pdf_filename, subject, sender, category_name])
+                    
+                    # remove the PDF file after saving metadata
+                    os.remove(pdf_filename)
                 else:
                     print(f"No HTML content found for message ID: {msg_id}")
     else:

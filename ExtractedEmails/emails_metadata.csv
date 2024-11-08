@@ -1,3 +1,4 @@
-PDF Filename,Title,Sender,Category
-ExtractedEmails/Email1.pdf,Ready to download GenieBox?,BrandCrowd <logo-downloads@hello.brandcrowd.com>,CATEGORY_PROMOTIONS
-ExtractedEmails/Email2.pdf,📩 Your 30+ Internships Are Here – Apply Now!,APEX Internships <internships@apexearlycareers.com>,CATEGORY_PROMOTIONS
+pdf_filename,email_title,category,summary_text,promo_code,expiry_date
+../ExtractedEmails/Email1.pdf,"Two Matches, Twice the Glory – Are You In?",Everything Else,"Play Fantasy Cricket for Australia Women's T20 matches and win up to ₹70 Lakh. Matches are against Bangladesh Women, South Africa Women, and Sri Lanka Women.",No,No
+../ExtractedEmails/Email2.pdf,Here’s a limited-time offer ✈️,Offers,Get up to 20% off on IndiGo flights from Delhi to Mumbai. Limited-time offer. Book now.,No,No
+../ExtractedEmails/Email3.pdf,Send docs via USPS directly from pdfFiller,Everything Else,pdfFiller offers to send physical documents via USPS for documents up to 20 pages. It's a paid service and fees charged by USPS are not covered by pdfFiller's subscription plans.,No,No
