@@ -10,7 +10,17 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 import apicall
 import json
 import pandas as pd 
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+# MongoDB setup
+mongodb = os.getenv('MONGO_URI')
+client = MongoClient(mongodb)  # Replace with your MongoDB URI
+db = client["email_database"]  # Database name
+emails_collection = db["users"]  # Collection name
 
 # Gmail API scopes
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -123,9 +133,16 @@ def main():
     category_id = labels.get(category_name)  # Get the label ID
     if category_id:
         results = service.users().messages().list(userId='me', labelIds=[category_id]).execute()
+        emailID = service.users().getProfile(userId='me').execute()
+        userEmail = emailID['emailAddress']
+        
+        print(f"Email ID: {userEmail}")
+        
+        
+        
         messages = results.get('messages', [])
         if messages:
-            for i, message in enumerate(messages[20:30]):  # Process the first 3 messages
+            for i, message in enumerate(messages[:4]):  # Process the first 3 messages
                 msg_id = message['id']
                 email_body, sender, subject, snippet = get_email_content(service, msg_id)
                 if email_body:
@@ -142,7 +159,6 @@ def main():
                     summary_text = summaryJSON.get("Summary", "N/A")
                     promo_code = summaryJSON.get("Promo Code", "N/A")
                     expiry_date = summaryJSON.get("Expiry Date", "N/A")
-                
                     
                     # check if it is already in the csv
                     # If the CSV file exists, read it to check for duplicates
@@ -175,6 +191,49 @@ def main():
                     print(f"No HTML content found for message ID: {msg_id}")
     else:
         print(f"Label '{category_name}' not found.")
+        
+    try:
+        # Path to your CSV file
+        csv_file_path = '../ExtractedEmails/emails_metadata.csv'
+
+        # List to hold the offers as dictionaries
+        offers = []
+
+        # Read the CSV file and populate the offers list
+        with open(csv_file_path, mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            
+            for row in csv_reader:
+                # Create a dictionary with the required fields
+                offer = {
+                    "email_title": row["email_title"],
+                    "category": row["category"],
+                    "summary_text": row["summary_text"],
+                    "promo_code": row["promo_code"],
+                    "expiry_date": row["expiry_date"]
+                }
+                # Append each offer dictionary to the offers list
+                offers.append(offer)
+
+        # Print the result to verify
+        print(offers)
+        
+        existing_entry = emails_collection.find_one({"userEmail": userEmail})
+        
+        if existing_entry:
+            # Update the existing document with the new offers
+            emails_collection.update_one(
+                {"userEmail": userEmail},
+                {"$set": {"offers": offers}}
+            )
+            print("Email metadata updated in MongoDB successfully.")
+        else:
+            # Insert a new document if the user's email is not present
+            emails_collection.insert_one({"userEmail": userEmail, "offers": offers})
+            print("Email metadata saved to MongoDB successfully.")
+    except Exception as e:
+        print(f"Error saving email metadata to MongoDB: {e}")
+    
 
 if __name__ == '__main__':
     main()
