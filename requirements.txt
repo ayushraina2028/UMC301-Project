@@ -10,4 +10,5 @@ paddlepaddle
 paddleocr
 pytz
 pandas
-tkinter
+streamlit
+streamlit-pills

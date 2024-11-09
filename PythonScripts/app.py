@@ -125,7 +125,7 @@ def main():
         results = service.users().messages().list(userId='me', labelIds=[category_id]).execute()
         messages = results.get('messages', [])
         if messages:
-            for i, message in enumerate(messages[:20]):  # Process the first 3 messages
+            for i, message in enumerate(messages[20:30]):  # Process the first 3 messages
                 msg_id = message['id']
                 email_body, sender, subject, snippet = get_email_content(service, msg_id)
                 if email_body:
