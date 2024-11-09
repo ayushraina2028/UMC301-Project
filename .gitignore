@@ -2,4 +2,4 @@
 venv
 credentials.json
 token.pickle
-TextExtraction/__pycache__/
+PythonScripts/__pycache__/

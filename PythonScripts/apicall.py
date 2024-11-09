@@ -94,6 +94,7 @@ def getContent(pdfPath):
             "Expiry Date": "N/A"
         }
         
+        
         return json.dumps(summaryJSON, indent=2)
     
     # Extract text from images
@@ -112,6 +113,9 @@ def getContent(pdfPath):
     # summarize the text
     summary = summarize.summarizeText(pdfText)
     summaryJSON = parseSummary(summary)
+    
+    print(summaryJSON)
+    
     return json.dumps(summaryJSON, indent=2)
     
 

@@ -10,3 +10,4 @@ paddlepaddle
 paddleocr
 pytz
 pandas
+tkinter

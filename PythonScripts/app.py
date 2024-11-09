@@ -14,6 +14,7 @@ import pandas as pd
 
 # Gmail API scopes
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
 def get_service():
     """Get Gmail API service."""
     creds = None
@@ -24,11 +25,12 @@ def get_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('../credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         with open('../token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return build('gmail', 'v1', credentials=creds)
+
 def get_email_content(service, message_id):
     """Fetch email content given a message ID."""
     msg = service.users().messages().get(userId='me', id=message_id, format='full').execute()
@@ -54,6 +56,7 @@ def get_email_content(service, message_id):
             if 'data' in msg['payload']['body']:
                 email_body = base64.urlsafe_b64decode(msg['payload']['body']['data']).decode('utf-8')
     return email_body, sender, subject, snippet
+
 def save_email_as_pdf(email_body, email_index, folder_path = '../ExtractedEmails'):
     """Convert the email body (HTML) to a PDF file using WeasyPrint with backgrounds enabled."""
     
@@ -72,12 +75,12 @@ def save_email_as_pdf(email_body, email_index, folder_path = '../ExtractedEmails
     html.write_pdf(pdf_path, stylesheets=None, presentational_hints=True)
     print(f"Saved: {pdf_path}")
     return pdf_path
+
 def get_labels(service):
     """Fetch all labels for the authenticated user."""
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
     return {label['name']: label['id'] for label in labels}
-
 
 
 def save_metadata_to_csv(data, folder_path="../ExtractedEmails"):
@@ -122,7 +125,7 @@ def main():
         results = service.users().messages().list(userId='me', labelIds=[category_id]).execute()
         messages = results.get('messages', [])
         if messages:
-            for i, message in enumerate(messages[:15]):  # Process the first 3 messages
+            for i, message in enumerate(messages[:20]):  # Process the first 3 messages
                 msg_id = message['id']
                 email_body, sender, subject, snippet = get_email_content(service, msg_id)
                 if email_body:
@@ -136,9 +139,10 @@ def main():
                     # Extract relevant fields from the JSON response
                     email_title = subject
                     category = summaryJSON.get("Category", "N/A")
+                    summary_text = summaryJSON.get("Summary", "N/A")
                     promo_code = summaryJSON.get("Promo Code", "N/A")
                     expiry_date = summaryJSON.get("Expiry Date", "N/A")
-                    summary_text = summaryJSON.get("Summary", "N/A")
+                
                     
                     # check if it is already in the csv
                     # If the CSV file exists, read it to check for duplicates

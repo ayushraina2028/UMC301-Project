@@ -20,6 +20,7 @@ Then classify the email as one of the following categories:
 Include offers related to subscriptions,fantasy sports in last category.
 First 3 categories are important to us, so please make sure to classify them correctly. If you are not sure about the category, then you can leave it as 'Everything Else'.
 If there are multiple promocodes, include all of them in summary and any one of them in promo code field.
+Email related to Internships can be put in Remineder/Alerts category given that they have consize information like last date of application, stipend, etc.
 
 output should be in json format with following keys:
 1. Email Title
