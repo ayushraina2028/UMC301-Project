@@ -1,5 +1,5 @@
 Project for the Course UMC 301 - Applied Data Science and Artificial Intelligence
-
+To run the pipeline, you need to be the test user of the project. Please drop a message to us at teams so that we can add you as a test user.
 To run this pipeline, first install the requirements by running the following command:
 ```bash
 pip install -r requirements.txt
