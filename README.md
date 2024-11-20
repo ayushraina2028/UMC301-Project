@@ -18,3 +18,11 @@ streamlit run streamlitapp.py
 ```
 
 streamlitapp.py is also present in PythonScripts folder. The UI will run on the localhost and will display the extracted emails and their metadata.
+
+We also have React and Next JS Based UI, which can be started by commands available in firebase geniebox folder. After starting the development server, the csv file which is generated from above steps has to be uploaded in the UI to display the extracted emails and their metadata.
+
+Contributions
+- [Ayush Raina](Backend Code Development)
+- [Savya Sachi](Prompt Engineering)
+- [Anushka Dassi](React Based Frontend)
+- [Sanidhya Kaushik](Data Collection and OCR)
