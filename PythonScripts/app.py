@@ -142,7 +142,7 @@ def main():
         
         messages = results.get('messages', [])
         if messages:
-            for i, message in enumerate(messages[:4]):  # Process the first 3 messages
+            for i, message in enumerate(messages[:10]):  # Process the first 3 messages
                 msg_id = message['id']
                 email_body, sender, subject, snippet = get_email_content(service, msg_id)
                 if email_body:
